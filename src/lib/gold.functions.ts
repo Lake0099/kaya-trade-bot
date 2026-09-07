@@ -82,8 +82,8 @@ export const analyzeGold = createServerFn({ method: "POST" })
 
     if (!res.ok) {
       const body = await res.text();
-      if (res.status === 429) throw new Error("Bohot zyada requests — thoda ruk kar dobara try karein.");
-      if (res.status === 402) throw new Error("AI credits khatam ho gaye — workspace me credits add karein.");
+      if (res.status === 429) throw new Error("Too many requests — please wait a moment and try again.");
+      if (res.status === 402) throw new Error("AI credits exhausted — add credits to your workspace.");
       throw new Error(`AI request failed [${res.status}]: ${body}`);
     }
 

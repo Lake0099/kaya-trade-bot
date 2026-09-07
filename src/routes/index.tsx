@@ -25,8 +25,8 @@ export const Route = createFileRoute("/")({
   component: Home,
 });
 
-function download() {
-  fetch("/gold-desk-extension.zip")
+function download(file: string, name: string) {
+  fetch(file)
     .then((res) => {
       if (!res.ok) throw new Error(`Download failed: ${res.status}`);
       return res.blob();
@@ -34,7 +34,7 @@ function download() {
     .then((blob) => {
       const a = document.createElement("a");
       a.href = URL.createObjectURL(blob);
-      a.download = "gold-desk-extension.zip";
+      a.download = name;
       a.click();
       URL.revokeObjectURL(a.href);
     })
@@ -55,9 +55,14 @@ function Home() {
             Live gold analysis with ICT/SMC structure, liquidity, order blocks and chart screen reading—right beside your browser.
           </p>
 
-          <Button onClick={download} size="lg" className="mt-7 rounded-full px-6">
-            <Download /> Download extension
-          </Button>
+          <div className="mt-7 flex flex-wrap gap-3">
+            <Button onClick={() => download("/gold-desk-extension.zip", "gold-desk-extension.zip")} size="lg" className="rounded-full px-6">
+              <Download /> Download extension
+            </Button>
+            <Button onClick={() => download("/jenvu-project.zip", "jenvu-project.zip")} size="lg" variant="outline" className="rounded-full px-6">
+              <Download /> Download project ZIP
+            </Button>
+          </div>
 
           <div className="mt-9 border-t border-border pt-6">
             <div className="flex items-center gap-2 text-sm font-semibold">

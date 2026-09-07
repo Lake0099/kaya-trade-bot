@@ -161,3 +161,15 @@
     -webkit-font-smoothing: antialiased;
   }
 }
+
+/* Hide the "Edit with Lovable" badge on the live website */
+[data-lovable-badge],
+.lovable-badge,
+a[href*="lovable"][aria-label*="Edit"],
+[class*="lovable"][class*="badge"],
+[id*="lovable-badge"] {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}

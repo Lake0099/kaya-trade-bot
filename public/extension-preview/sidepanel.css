@@ -43,8 +43,7 @@ header {
   position: sticky; top: 0; background: var(--bg); z-index: 5;
 }
 .brand { display: flex; align-items: center; gap: 11px; min-width: 0; }
-.brand-mark { width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; flex: none; color: #fff; background: linear-gradient(145deg, #f7c948, #bd7b0a); box-shadow: 0 2px 7px rgba(189,123,10,.2); }
-.brand-mark svg { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.brand-mark { width: 36px; height: 36px; flex: none; object-fit: contain; filter: drop-shadow(0 2px 6px rgba(160,32,240,.25)); }
 h1 { font-size: 15px; font-weight: 500; margin: 0; letter-spacing: 0; }
 .sub { margin: 2px 0 0; font-size: 11px; font-weight: 400; color: var(--muted); white-space: nowrap; }
 .head-right { display: flex; align-items: center; gap: 5px; }

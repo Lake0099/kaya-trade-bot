@@ -1,0 +1,12 @@
+{
+  "manifest_version": 3,
+  "name": "Gold Desk — XAU/USD AI Analysis",
+  "version": "1.0.0",
+  "description": "Live gold price, technical levels and AI trade plans in your browser side panel.",
+  "permissions": ["sidePanel", "storage"],
+  "host_permissions": ["https://project--e6504850-5ce1-48e5-b564-6e4bbb878c19.lovable.app/*"],
+  "action": { "default_title": "Open Gold Desk", "default_icon": "icon.png" },
+  "side_panel": { "default_path": "sidepanel.html" },
+  "background": { "service_worker": "background.js" },
+  "icons": { "48": "icon.png", "128": "icon.png" }
+}

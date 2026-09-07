@@ -279,4 +279,5 @@ renderTabs();
 renderQuick();
 emptyState();
 loadSnapshot();
-setInterval(loadSnapshot, 20000);
+setInterval(loadSnapshot, 5000);
+document.addEventListener("visibilitychange", () => { if (!document.hidden) loadSnapshot(); });

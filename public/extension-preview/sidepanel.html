@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Gold Desk AI</title>
+    <link rel="stylesheet" href="sidepanel.css" />
+  </head>
+  <body>
+    <header>
+      <div>
+        <h1>Gold Desk AI</h1>
+        <p class="sub">ICT / SMC analyst · XAU/USD</p>
+      </div>
+      <div class="head-right">
+        <span id="price" class="hprice">—</span>
+        <span id="change" class="hchange">…</span>
+      </div>
+    </header>
+
+    <div class="row" id="tfs"></div>
+
+    <div id="screenbar" class="screenbar">
+      <button id="share" class="share">Share screen</button>
+      <label class="watch hidden" id="watchwrap">
+        <input type="checkbox" id="watch" /> Auto-watch
+      </label>
+      <span id="shstate" class="muted small">Screen off</span>
+    </div>
+
+    <div id="thread" class="thread"></div>
+
+    <div class="quick" id="quick"></div>
+
+    <div class="composer">
+      <textarea id="q" rows="1" placeholder="Ask Gold Desk AI…"></textarea>
+      <button id="attach" class="icon" title="Attach chart image">＋</button>
+      <button id="send" class="send" title="Send">➤</button>
+      <input id="file" type="file" accept="image/*" hidden />
+    </div>
+    <div id="attached" class="muted small hidden">Chart attached · <button id="clear" class="link">remove</button></div>
+
+    <video id="vid" autoplay muted playsinline class="hidden"></video>
+    <canvas id="cv" class="hidden"></canvas>
+
+    <footer>Price feed: PAXG/USDT (gold-backed). Educational use only — not financial advice.</footer>
+    <script src="sidepanel.js"></script>
+  </body>
+</html>

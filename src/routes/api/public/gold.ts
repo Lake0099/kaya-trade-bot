@@ -138,14 +138,25 @@ export const Route = createFileRoute("/api/public/gold")({
           return json(request, { error: "Invalid request" }, 400);
         }
 
-        const { fetchCandles, fetchTicker, computeTechnicals } = await import(
-          "@/lib/market.server"
-        );
-        const [candles, ticker] = await Promise.all([
-          fetchCandles(body.timeframe, 300),
-          fetchTicker(),
-        ]);
-        const technicals = computeTechnicals(candles);
+        let market;
+        try {
+          const { fetchCandles, fetchTicker, computeTechnicals } = await import(
+            "@/lib/market.server"
+          );
+          const [candles, ticker] = await Promise.all([
+            fetchCandles(body.timeframe, 300),
+            fetchTicker(),
+          ]);
+          market = { ticker, technicals: computeTechnicals(candles) };
+        } catch (error) {
+          console.error("Gold market data request failed", error);
+          return json(
+            request,
+            { error: "Live gold data is temporarily unavailable. Please try again shortly." },
+            503,
+          );
+        }
+        const { ticker, technicals } = market;
 
         if (body.action === "snapshot") {
           return json(request, { ticker, technicals, timeframe: body.timeframe });

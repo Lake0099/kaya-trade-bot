@@ -115,21 +115,34 @@ async function post(body) {
   throw lastErr || new Error("Network error");
 }
 
+let lastPrice = null;
+
 async function loadSnapshot() {
   try {
     const d = await post({ action: "snapshot", timeframe });
-    $("price").textContent = d.ticker.price.toFixed(2);
+    const p = d.ticker.price;
+    const el = $("price");
+    el.textContent = p.toFixed(2);
+    if (lastPrice !== null && p !== lastPrice) {
+      el.classList.remove("tick-up", "tick-down");
+      void el.offsetWidth;
+      el.classList.add(p > lastPrice ? "tick-up" : "tick-down");
+    }
+    lastPrice = p;
     const up = d.ticker.changePercent >= 0;
     const ch = $("change");
     ch.textContent = `${up ? "▲" : "▼"} ${d.ticker.changePercent.toFixed(2)}%`;
     ch.className = "hchange " + (up ? "bull" : "bear");
     const trend = $("trend");
-    const bias = String(d.indicators?.trend || (up ? "Bullish" : "Bearish"));
+    const bias = String(d.technicals?.trend || d.indicators?.trend || (up ? "Bullish" : "Bearish"));
     trend.textContent = bias.toUpperCase();
     trend.className = "trend " + (/bull|up/i.test(bias) ? "bull" : /bear|down/i.test(bias) ? "bear" : "");
+    const t = new Date();
+    $("updated").textContent = `Live · updated ${t.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" })}`;
+    $("dot").className = "dot live";
   } catch (e) {
-    $("change").textContent = e.message;
-    $("change").className = "hchange bear";
+    $("updated").textContent = `Reconnecting… (${e.message})`;
+    $("dot").className = "dot off";
   }
 }
 

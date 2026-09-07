@@ -51,8 +51,8 @@ function renderQuick() {
 function emptyState() {
   const t = $("thread");
   t.innerHTML =
-    '<div class="empty">Salam 👋 Main aap ka gold analyst hoon — 25+ saal ka ICT/SMC style.<br><br>' +
-    '"Share screen" dabayein to main aap ki Chrome screen (chart) live parh kar batata rahoon ga: structure, liquidity, OB/FVG, entry, stop aur targets.</div>';
+    '<div class="empty"><strong>Your ICT/SMC gold analyst is ready.</strong><br>' +
+    'Share your chart and I’ll read structure, liquidity, order blocks, FVGs, entries, invalidation and targets in real time.</div>';
 }
 
 function addMsg(cls, text, shot) {
@@ -109,6 +109,10 @@ async function loadSnapshot() {
     const ch = $("change");
     ch.textContent = `${up ? "▲" : "▼"} ${d.ticker.changePercent.toFixed(2)}%`;
     ch.className = "hchange " + (up ? "bull" : "bear");
+    const trend = $("trend");
+    const bias = String(d.indicators?.trend || (up ? "Bullish" : "Bearish"));
+    trend.textContent = bias.toUpperCase();
+    trend.className = "trend " + (/bull|up/i.test(bias) ? "bull" : /bear|down/i.test(bias) ? "bear" : "");
   } catch (e) {
     $("change").textContent = e.message;
     $("change").className = "hchange bear";

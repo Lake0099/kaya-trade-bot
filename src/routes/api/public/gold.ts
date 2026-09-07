@@ -36,48 +36,88 @@ Your method is ICT / Smart Money Concepts, applied strictly:
 
 Style: talk like a senior mentor — direct, no fluff, no hype. Use short markdown headings and bullets. Always give concrete price levels and an invalidation level. If the user writes Urdu/Hindi/Roman-Urdu, reply in the same language. If you are shown a screen or chart image, describe exactly what you see (pair, timeframe, structure, levels) before giving the read. Never promise profits; end with a one-line risk note.`;
 
-const CORS = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "content-type",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-};
+const BLUESMIND_URL = "https://api.bluesminds.com/v1/chat/completions";
+const BLUESMIND_CHAT_MODEL = "openai/gpt-oss-20b";
+const BLUESMIND_VISION_MODEL = "meta/llama-3.2-11b-vision-instruct";
 
-function json(data: unknown, status = 200) {
+function corsHeaders(request: Request) {
+  const origin = request.headers.get("origin") ?? "";
+  const allowedOrigin = origin.startsWith("chrome-extension://") ? origin : "null";
+  return {
+    "Access-Control-Allow-Origin": allowedOrigin,
+    "Access-Control-Allow-Headers": "content-type",
+    "Access-Control-Allow-Methods": "POST, OPTIONS",
+    Vary: "Origin",
+  };
+}
+
+function isAllowedRequest(request: Request) {
+  return (request.headers.get("origin") ?? "").startsWith("chrome-extension://");
+}
+
+function json(request: Request, data: unknown, status = 200) {
   return new Response(JSON.stringify(data), {
     status,
-    headers: { "content-type": "application/json", ...CORS },
+    headers: { "content-type": "application/json", ...corsHeaders(request) },
   });
 }
 
-async function callAi(key: string, messages: unknown[], maxTokens: number) {
-  const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+async function callAi(
+  key: string,
+  messages: unknown[],
+  maxTokens: number,
+  hasImage: boolean,
+) {
+  const model = hasImage ? BLUESMIND_VISION_MODEL : BLUESMIND_CHAT_MODEL;
+  const res = await fetch(BLUESMIND_URL, {
     method: "POST",
-    headers: { "Content-Type": "application/json", "Lovable-API-Key": key },
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
     body: JSON.stringify({
-      model: "google/gemini-3.8-flash",
-      max_tokens: maxTokens,
+      model,
+      max_completion_tokens: maxTokens,
       messages,
     }),
   });
   if (!res.ok) {
-    if (res.status === 429) return { error: "Rate limited — thodi der baad try karein.", status: 429 };
-    if (res.status === 402) return { error: "AI credits khatam ho gaye.", status: 402 };
-    return { error: `AI request failed [${res.status}]`, status: 500 };
+    const failure = (await res.json().catch(() => null)) as
+      | { error?: { message?: string } | string; message?: string }
+      | null;
+    const providerMessage =
+      typeof failure?.error === "string"
+        ? failure.error
+        : failure?.error?.message ?? failure?.message;
+    const message = providerMessage?.slice(0, 300);
+    if (res.status === 429) {
+      return { error: message ?? "BluesMind rate limit — thodi der baad try karein.", status: 429 };
+    }
+    if (res.status === 402) {
+      return { error: message ?? "BluesMind credits khatam ho gaye.", status: 402 };
+    }
+    if (res.status === 401 || res.status === 403) {
+      return { error: message ?? "BluesMind API key ya access valid nahi hai.", status: res.status };
+    }
+    return { error: message ?? `BluesMind request failed [${res.status}]`, status: res.status };
   }
   const out = (await res.json()) as { choices?: { message?: { content?: string } }[] };
-  return { text: out.choices?.[0]?.message?.content ?? "No analysis returned." };
+  return { text: out.choices?.[0]?.message?.content ?? "No analysis returned.", model };
 }
 
 export const Route = createFileRoute("/api/public/gold")({
   server: {
     handlers: {
-      OPTIONS: async () => new Response(null, { status: 204, headers: CORS }),
+      OPTIONS: async ({ request }) => {
+        if (!isAllowedRequest(request)) return new Response(null, { status: 403 });
+        return new Response(null, { status: 204, headers: corsHeaders(request) });
+      },
       POST: async ({ request }) => {
+        if (!isAllowedRequest(request)) {
+          return json(request, { error: "Only the Gold Desk Chrome extension can use this endpoint." }, 403);
+        }
         let body: z.infer<typeof Body>;
         try {
           body = Body.parse(await request.json());
         } catch {
-          return json({ error: "Invalid request" }, 400);
+          return json(request, { error: "Invalid request" }, 400);
         }
 
         const { fetchCandles, fetchTicker, computeTechnicals } = await import(
@@ -90,11 +130,11 @@ export const Route = createFileRoute("/api/public/gold")({
         const technicals = computeTechnicals(candles);
 
         if (body.action === "snapshot") {
-          return json({ ticker, technicals, timeframe: body.timeframe });
+          return json(request, { ticker, technicals, timeframe: body.timeframe });
         }
 
-        const key = process.env["LOVABLE_API_KEY"];
-        if (!key) return json({ error: "AI is not configured" }, 500);
+        const key = process.env["BLUESMIND_API_KEY"];
+        if (!key) return json(request, { error: "BluesMind AI is not configured" }, 500);
 
         const context = JSON.stringify({ ticker, technicals, timeframe: body.timeframe });
 
@@ -126,9 +166,10 @@ export const Route = createFileRoute("/api/public/gold")({
               { role: "user", content: parts },
             ],
             1600,
+            Boolean(shot),
           );
-          if ("error" in result) return json({ error: result.error }, result.status);
-          return json({ text: result.text, ticker, technicals });
+          if ("error" in result) return json(request, { error: result.error }, result.status);
+          return json(request, { text: result.text, ticker, technicals, model: result.model });
         }
 
         const mode = body.mode ?? "technical";
@@ -152,9 +193,10 @@ export const Route = createFileRoute("/api/public/gold")({
             { role: "user", content: userContent },
           ],
           1400,
+          Boolean(body.chartImage),
         );
-        if ("error" in result) return json({ error: result.error }, result.status);
-        return json({ text: result.text, ticker, technicals });
+        if ("error" in result) return json(request, { error: result.error }, result.status);
+        return json(request, { text: result.text, ticker, technicals, model: result.model });
       },
     },
   },

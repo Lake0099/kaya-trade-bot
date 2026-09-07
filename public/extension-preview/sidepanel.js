@@ -6,10 +6,10 @@ const API =
 
 const TIMEFRAMES = ["15m", "1h", "4h", "1d"];
 const QUICKS = [
-  { label: "Screen padho", text: "Meri screen par jo chart hai usko ICT/SMC ke hisab se parho." },
-  { label: "Trade plan", text: "Ab ka trade plan do: bias, entry (POI), stop, TP1/TP2, RR." },
-  { label: "Liquidity", text: "Kahan liquidity resting hai aur agla sweep kahan expect karein?" },
-  { label: "Structure", text: "Market structure batao: BOS/CHoCH, premium ya discount?" },
+  { label: "Read screen", text: "Read the chart on my screen using ICT/SMC concepts." },
+  { label: "Trade plan", text: "Give me a trade plan now: bias, entry (POI), stop, TP1/TP2, RR." },
+  { label: "Liquidity", text: "Where is liquidity resting and where should I expect the next sweep?" },
+  { label: "Structure", text: "Explain market structure: BOS/CHoCH, premium or discount?" },
 ];
 
 let timeframe = "1h";

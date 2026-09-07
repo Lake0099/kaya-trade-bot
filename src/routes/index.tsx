@@ -61,13 +61,13 @@ function Home() {
               <ExternalLink className="size-4 text-primary" /> Install in Chrome
             </div>
             <ol className="mt-4 list-decimal space-y-2 pl-5 text-sm leading-6 text-muted-foreground">
-            <li>ZIP unzip karein.</li>
+            <li>Unzip the downloaded file.</li>
             <li>
-              Chrome mein <code>chrome://extensions</code> kholein.
+              Open <code>chrome://extensions</code> in Chrome.
             </li>
-            <li>Developer mode on karein (top-right).</li>
-            <li>“Load unpacked” par click karke folder select karein.</li>
-            <li>Toolbar icon dabate hi sidebar khul jayega.</li>
+            <li>Turn on Developer mode (top right).</li>
+            <li>Click “Load unpacked” and select the folder.</li>
+            <li>Click the toolbar icon to open the sidebar.</li>
             </ol>
           </div>
         </section>

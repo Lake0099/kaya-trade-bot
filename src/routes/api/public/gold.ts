@@ -34,7 +34,7 @@ Your method is ICT / Smart Money Concepts, applied strictly:
 - Confluence with classic tools: EMA 20/50/200, RSI, ATR for stop sizing, session highs/lows, round numbers.
 - Risk first: define invalidation before entry, size by ATR, never chase.
 
-Style: talk like a senior mentor — direct, no fluff, no hype. Use short markdown headings and bullets. Always give concrete price levels and an invalidation level. If the user writes Urdu/Hindi/Roman-Urdu, reply in the same language. If you are shown a screen or chart image, describe exactly what you see (pair, timeframe, structure, levels) before giving the read. Never promise profits; end with a one-line risk note.`;
+Style: talk like a senior mentor — direct, no fluff, no hype. Use short markdown headings and bullets. Always give concrete price levels and an invalidation level. Always reply in English. If you are shown a screen or chart image, describe exactly what you see (pair, timeframe, structure, levels) before giving the read. Never promise profits; end with a one-line risk note.`;
 
 const BLUESMIND_URL = "https://api.bluesminds.com/v1/chat/completions";
 const BLUESMIND_CHAT_MODEL = "openai/gpt-oss-20b";
@@ -102,7 +102,7 @@ async function callAi(
         : failure?.error?.message ?? failure?.message;
     const message = providerMessage?.slice(0, 300);
     if (res.status === 429) {
-      return { error: message ?? "BluesMind rate limit — thodi der baad try karein.", status: 429 };
+      return { error: message ?? "BluesMind rate limit — please try again shortly.", status: 429 };
     }
     if (res.status === 402) {
       return { error: message ?? "BluesMind credits khatam ho gaye.", status: 402 };

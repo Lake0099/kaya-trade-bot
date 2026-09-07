@@ -24,7 +24,7 @@ const MODE_PROMPT: Record<string, string> = {
   plan: "Give a concrete trade plan: bias, entry zone (POI), stop loss, TP1/TP2, risk-reward, and conditions to stand aside.",
 };
 
-const EXPERT_SYSTEM = `You are "Gold Desk AI" — a gold (XAU/USD) trading analyst with 25+ years of institutional experience (prop desk, London/NY sessions).
+const EXPERT_SYSTEM = `You are "Jenvu" — a gold (XAU/USD) trading analyst with 25+ years of institutional experience (prop desk, London/NY sessions).
 
 Your method is ICT / Smart Money Concepts, applied strictly:
 - Market structure: BOS, CHoCH, swing highs/lows, internal vs external liquidity.
@@ -125,7 +125,7 @@ export const Route = createFileRoute("/api/public/gold")({
       },
       POST: async ({ request }) => {
         if (!isAllowedRequest(request)) {
-          return json(request, { error: "Only the Gold Desk Chrome extension can use this endpoint." }, 403);
+          return json(request, { error: "Only the Jenvu Chrome extension can use this endpoint." }, 403);
         }
         let body: z.infer<typeof Body>;
         try {

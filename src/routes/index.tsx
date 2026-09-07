@@ -25,8 +25,8 @@ export const Route = createFileRoute("/")({
   component: Home,
 });
 
-function download() {
-  fetch("/gold-desk-extension.zip")
+function download(file: string, name: string) {
+  fetch(file)
     .then((res) => {
       if (!res.ok) throw new Error(`Download failed: ${res.status}`);
       return res.blob();
@@ -34,7 +34,7 @@ function download() {
     .then((blob) => {
       const a = document.createElement("a");
       a.href = URL.createObjectURL(blob);
-      a.download = "gold-desk-extension.zip";
+      a.download = name;
       a.click();
       URL.revokeObjectURL(a.href);
     })

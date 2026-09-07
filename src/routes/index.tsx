@@ -47,7 +47,10 @@ function Home() {
       <div className="mx-auto grid max-w-5xl items-start gap-10 lg:grid-cols-[1fr_400px] lg:gap-16">
         <section className="pt-3 lg:sticky lg:top-12">
           <p className="text-sm font-semibold text-primary">Chrome side panel</p>
-          <h1 className="mt-3 max-w-xl text-4xl font-semibold leading-tight sm:text-5xl">Jenvu</h1>
+          <div className="mt-3 flex items-center gap-3">
+            <img src="/jenvu-logo.png" alt="Jenvu logo" width={56} height={56} className="size-12 sm:size-14" />
+            <h1 className="max-w-xl text-4xl font-semibold leading-tight sm:text-5xl">Jenvu</h1>
+          </div>
           <p className="mt-5 max-w-xl text-base leading-7 text-muted-foreground">
             Live gold analysis with ICT/SMC structure, liquidity, order blocks and chart screen reading—right beside your browser.
           </p>

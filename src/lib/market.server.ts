@@ -7,14 +7,34 @@ export type Candle = {
   volume: number;
 };
 
-const BINANCE = "https://api.binance.com/api/v3";
+const MARKET_APIS = [
+  "https://data-api.binance.vision/api/v3",
+  "https://api1.binance.com/api/v3",
+  "https://api-gcp.binance.com/api/v3",
+  "https://api.binance.com/api/v3",
+];
 export const GOLD_SYMBOL = "PAXGUSDT";
 
+async function fetchMarket(path: string) {
+  let lastStatus = 503;
+  for (const base of MARKET_APIS) {
+    try {
+      const res = await fetch(`${base}${path}`, {
+        headers: { Accept: "application/json" },
+      });
+      if (res.ok) return res;
+      lastStatus = res.status;
+    } catch {
+      // Try the next public market-data host.
+    }
+  }
+  throw new Error(`Market data is temporarily unavailable [${lastStatus}]`);
+}
+
 export async function fetchCandles(interval: string, limit = 200): Promise<Candle[]> {
-  const res = await fetch(
-    `${BINANCE}/klines?symbol=${GOLD_SYMBOL}&interval=${interval}&limit=${limit}`,
+  const res = await fetchMarket(
+    `/klines?symbol=${GOLD_SYMBOL}&interval=${interval}&limit=${limit}`,
   );
-  if (!res.ok) throw new Error(`Market data failed [${res.status}]: ${await res.text()}`);
   const raw = (await res.json()) as unknown[][];
   return raw.map((k) => ({
     time: Number(k[0]),
@@ -27,8 +47,7 @@ export async function fetchCandles(interval: string, limit = 200): Promise<Candl
 }
 
 export async function fetchTicker() {
-  const res = await fetch(`${BINANCE}/ticker/24hr?symbol=${GOLD_SYMBOL}`);
-  if (!res.ok) throw new Error(`Ticker failed [${res.status}]: ${await res.text()}`);
+  const res = await fetchMarket(`/ticker/24hr?symbol=${GOLD_SYMBOL}`);
   const t = (await res.json()) as Record<string, string>;
   return {
     price: Number(t['lastPrice']),

@@ -62,7 +62,7 @@
   --color-surface: var(--surface);
   --color-bull: var(--bull);
   --color-bear: var(--bear);
-  --font-sans: "DM Sans", "Google Sans", "Product Sans", system-ui, sans-serif;
+  --font-sans: "Google Sans", "Google Sans Text", "Product Sans", system-ui, sans-serif;
   --font-mono: "DM Mono", ui-monospace, SFMono-Regular, monospace;
 }
 

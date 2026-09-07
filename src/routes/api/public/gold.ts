@@ -40,9 +40,19 @@ const BLUESMIND_URL = "https://api.bluesminds.com/v1/chat/completions";
 const BLUESMIND_CHAT_MODEL = "openai/gpt-oss-20b";
 const BLUESMIND_VISION_MODEL = "meta/llama-3.2-11b-vision-instruct";
 
+function isAllowedOrigin(origin: string) {
+  if (origin.startsWith("chrome-extension://")) return true;
+  try {
+    const h = new URL(origin).hostname;
+    return h.endsWith(".lovable.app") || h === "localhost" || h === "127.0.0.1";
+  } catch {
+    return false;
+  }
+}
+
 function corsHeaders(request: Request) {
   const origin = request.headers.get("origin") ?? "";
-  const allowedOrigin = origin.startsWith("chrome-extension://") ? origin : "null";
+  const allowedOrigin = isAllowedOrigin(origin) ? origin : "null";
   return {
     "Access-Control-Allow-Origin": allowedOrigin,
     "Access-Control-Allow-Headers": "content-type",
@@ -52,8 +62,12 @@ function corsHeaders(request: Request) {
 }
 
 function isAllowedRequest(request: Request) {
-  return (request.headers.get("origin") ?? "").startsWith("chrome-extension://");
+  const origin = request.headers.get("origin");
+  // same-origin fetches from our own site may omit Origin
+  if (!origin) return true;
+  return isAllowedOrigin(origin);
 }
+
 
 function json(request: Request, data: unknown, status = 200) {
   return new Response(JSON.stringify(data), {

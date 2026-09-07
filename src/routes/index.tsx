@@ -1,4 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { Download, ExternalLink } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -40,24 +43,24 @@ function download() {
 
 function Home() {
   return (
-    <main className="min-h-dvh bg-background px-4 py-6 text-foreground">
-      <div className="mx-auto flex max-w-5xl flex-col gap-6 lg:flex-row">
-        <section className="flex-1">
-          <h1 className="text-2xl font-semibold">Gold Desk AI</h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Yeh bilkul wahi panel hai jo Chrome sidebar mein khulta hai. Yahin test karein —
-            price, timeframe, chat aur chart upload sab live chalte hain. (Screen share sirf
-            extension ke andar chalega.)
+    <main className="min-h-dvh bg-surface px-4 py-8 text-foreground sm:px-6 lg:py-12">
+      <div className="mx-auto grid max-w-5xl items-start gap-10 lg:grid-cols-[1fr_400px] lg:gap-16">
+        <section className="pt-3 lg:sticky lg:top-12">
+          <p className="text-sm font-semibold text-primary">Chrome side panel</p>
+          <h1 className="mt-3 max-w-xl text-4xl font-semibold leading-tight sm:text-5xl">GoldAI Analyst</h1>
+          <p className="mt-5 max-w-xl text-base leading-7 text-muted-foreground">
+            Live gold analysis with ICT/SMC structure, liquidity, order blocks and chart screen reading—right beside your browser.
           </p>
 
-          <button
-            onClick={download}
-            className="mt-4 rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground"
-          >
-            Download extension (.zip)
-          </button>
+          <Button onClick={download} size="lg" className="mt-7 rounded-full px-6">
+            <Download /> Download extension
+          </Button>
 
-          <ol className="mt-5 list-decimal space-y-1.5 pl-5 text-sm text-muted-foreground">
+          <div className="mt-9 border-t border-border pt-6">
+            <div className="flex items-center gap-2 text-sm font-semibold">
+              <ExternalLink className="size-4 text-primary" /> Install in Chrome
+            </div>
+            <ol className="mt-4 list-decimal space-y-2 pl-5 text-sm leading-6 text-muted-foreground">
             <li>ZIP unzip karein.</li>
             <li>
               Chrome mein <code>chrome://extensions</code> kholein.
@@ -65,15 +68,16 @@ function Home() {
             <li>Developer mode on karein (top-right).</li>
             <li>“Load unpacked” par click karke folder select karein.</li>
             <li>Toolbar icon dabate hi sidebar khul jayega.</li>
-          </ol>
+            </ol>
+          </div>
         </section>
 
-        <section className="shrink-0">
-          <div className="overflow-hidden rounded-2xl border border-border shadow-sm">
+        <section className="mx-auto w-full max-w-[400px] shrink-0" aria-label="Live extension preview">
+          <div className="overflow-hidden rounded-[24px] border border-border bg-card shadow-xl">
             <iframe
               src="/extension-preview/sidepanel.html"
               title="Gold Desk sidebar preview"
-              className="block h-[720px] w-[380px] bg-white"
+              className="block h-[740px] w-full bg-background"
             />
           </div>
         </section>

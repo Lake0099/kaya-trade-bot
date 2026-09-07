@@ -138,6 +138,42 @@ function GoldPanel() {
         </span>
       </header>
 
+      <section className="border-b border-border bg-surface/60 px-4 py-4">
+        <h2 className="text-[11px] font-semibold uppercase tracking-widest text-accent">
+          Chrome sidebar extension
+        </h2>
+        <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+          Isi panel ko Chrome ke side panel me kholein — chart ke saath saath.
+        </p>
+        <button
+          onClick={() => {
+            fetch("/gold-desk-extension.zip")
+              .then((res) => {
+                if (!res.ok) throw new Error(`Download failed: ${res.status}`);
+                return res.blob();
+              })
+              .then((blob) => {
+                const a = document.createElement("a");
+                a.href = URL.createObjectURL(blob);
+                a.download = "gold-desk-extension.zip";
+                a.click();
+                URL.revokeObjectURL(a.href);
+              })
+              .catch((err) => alert(err.message));
+          }}
+          className="mt-3 w-full rounded-md border border-accent/50 bg-accent/15 px-3 py-2 text-xs font-semibold text-accent"
+        >
+          Download extension (.zip)
+        </button>
+        <ol className="mt-3 space-y-1 pl-4 text-[11px] leading-relaxed text-muted-foreground [list-style:decimal]">
+          <li>Zip file ko unzip karein.</li>
+          <li>Chrome me chrome://extensions kholein.</li>
+          <li>Upar dayen "Developer mode" on karein.</li>
+          <li>"Load unpacked" par click kar ke unzipped folder chunein.</li>
+          <li>Toolbar me Gold Desk icon dabayein — sidebar khul jayegi.</li>
+        </ol>
+      </section>
+
       <section className="border-b border-border px-4 py-4">
         <div className="flex items-end justify-between">
           <div>

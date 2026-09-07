@@ -2,44 +2,89 @@ const API =
   "https://project--e6504850-5ce1-48e5-b564-6e4bbb878c19.lovable.app/api/public/gold";
 
 const TIMEFRAMES = ["15m", "1h", "4h", "1d"];
-const MODES = [
-  { id: "technical", label: "Technical" },
-  { id: "sentiment", label: "Sentiment" },
-  { id: "plan", label: "Trade plan" },
+const QUICKS = [
+  { label: "Screen padho", text: "Meri screen par jo chart hai usko ICT/SMC ke hisab se parho." },
+  { label: "Trade plan", text: "Ab ka trade plan do: bias, entry (POI), stop, TP1/TP2, RR." },
+  { label: "Liquidity", text: "Kahan liquidity resting hai aur agla sweep kahan expect karein?" },
+  { label: "Structure", text: "Market structure batao: BOS/CHoCH, premium ya discount?" },
 ];
 
 let timeframe = "1h";
-let mode = "technical";
 let chartImage = null;
+let stream = null;
+let watchTimer = null;
+let busy = false;
+const history = [];
 
 const $ = (id) => document.getElementById(id);
 
-function tabs(container, items, current, onPick) {
-  container.innerHTML = "";
-  items.forEach((it) => {
+function renderTabs() {
+  const c = $("tfs");
+  c.innerHTML = "";
+  TIMEFRAMES.forEach((tf) => {
     const b = document.createElement("button");
-    b.className = "tab" + (it.id === current ? " active" : "");
-    b.textContent = it.label;
-    b.onclick = () => onPick(it.id);
-    container.appendChild(b);
+    b.className = "tab" + (tf === timeframe ? " active" : "");
+    b.textContent = tf;
+    b.onclick = () => {
+      timeframe = tf;
+      renderTabs();
+      loadSnapshot();
+    };
+    c.appendChild(b);
   });
 }
 
-function renderTabs() {
-  tabs(
-    $("tfs"),
-    TIMEFRAMES.map((t) => ({ id: t, label: t })),
-    timeframe,
-    (id) => {
-      timeframe = id;
-      renderTabs();
-      loadSnapshot();
-    },
-  );
-  tabs($("modes"), MODES, mode, (id) => {
-    mode = id;
-    renderTabs();
+function renderQuick() {
+  const c = $("quick");
+  c.innerHTML = "";
+  QUICKS.forEach((q) => {
+    const b = document.createElement("button");
+    b.textContent = q.label;
+    b.onclick = () => send(q.text);
+    c.appendChild(b);
   });
+}
+
+function emptyState() {
+  const t = $("thread");
+  t.innerHTML =
+    '<div class="empty">Salam 👋 Main aap ka gold analyst hoon — 25+ saal ka ICT/SMC style.<br><br>' +
+    '"Share screen" dabayein to main aap ki Chrome screen (chart) live parh kar batata rahoon ga: structure, liquidity, OB/FVG, entry, stop aur targets.</div>';
+}
+
+function addMsg(cls, text, shot) {
+  const t = $("thread");
+  const d = document.createElement("div");
+  d.className = "msg " + cls;
+  if (shot) {
+    const img = document.createElement("img");
+    img.src = shot;
+    img.className = "shot";
+    d.appendChild(img);
+  }
+  const body = document.createElement("div");
+  if (cls === "ai") {
+    text.split("\n").forEach((line) => {
+      const l = line.trim();
+      if (!l) return;
+      if (l.startsWith("#")) {
+        const h = document.createElement("h4");
+        h.textContent = l.replace(/^#+\s*/, "").replace(/\*\*/g, "");
+        body.appendChild(h);
+      } else {
+        const p = document.createElement("div");
+        p.textContent = l.replace(/\*\*/g, "").replace(/^[-*•]\s*/, "— ");
+        body.appendChild(p);
+      }
+    });
+  } else {
+    body.textContent = text;
+  }
+  d.appendChild(body);
+  if (t.querySelector(".empty")) t.innerHTML = "";
+  t.appendChild(d);
+  t.scrollTop = t.scrollHeight;
+  return d;
 }
 
 async function post(body) {
@@ -56,36 +101,73 @@ async function post(body) {
 async function loadSnapshot() {
   try {
     const d = await post({ action: "snapshot", timeframe });
-    const t = d.technicals;
     $("price").textContent = d.ticker.price.toFixed(2);
     const up = d.ticker.changePercent >= 0;
     const ch = $("change");
-    ch.textContent = `${up ? "▲" : "▼"} ${d.ticker.changePercent.toFixed(2)}% · 24h`;
-    ch.className = up ? "bull" : "bear";
-
-    const cells = [
-      ["Trend", t.trend],
-      ["RSI 14", String(t.rsi14)],
-      ["EMA 20", t.ema20.toFixed(2)],
-      ["EMA 50", t.ema50.toFixed(2)],
-      ["ATR 14", t.atr14.toFixed(2)],
-      ["EMA 200", t.ema200.toFixed(2)],
-    ];
-    $("stats").innerHTML = cells
-      .map(([k, v]) => `<div class="cell"><div class="cap">${k}</div><div class="val">${v}</div></div>`)
-      .join("");
-
-    const lvl = (arr) =>
-      arr && arr.length
-        ? arr.map((r) => `<div class="lvl">${r.level.toFixed(2)}</div>`).join("")
-        : `<div class="muted">—</div>`;
-    $("res").innerHTML = lvl(t.resistance);
-    $("sup").innerHTML = lvl(t.support);
+    ch.textContent = `${up ? "▲" : "▼"} ${d.ticker.changePercent.toFixed(2)}%`;
+    ch.className = "hchange " + (up ? "bull" : "bear");
   } catch (e) {
     $("change").textContent = e.message;
-    $("change").className = "bear";
+    $("change").className = "hchange bear";
   }
 }
+
+/* ---------- screen sharing ---------- */
+
+function grabFrame() {
+  if (!stream) return null;
+  const v = $("vid");
+  if (!v.videoWidth) return null;
+  const cv = $("cv");
+  const w = Math.min(1280, v.videoWidth);
+  cv.width = w;
+  cv.height = Math.round((v.videoHeight / v.videoWidth) * w);
+  cv.getContext("2d").drawImage(v, 0, 0, cv.width, cv.height);
+  return cv.toDataURL("image/jpeg", 0.7);
+}
+
+function stopShare() {
+  if (stream) stream.getTracks().forEach((t) => t.stop());
+  stream = null;
+  if (watchTimer) clearInterval(watchTimer);
+  watchTimer = null;
+  $("watch").checked = false;
+  $("watchwrap").classList.add("hidden");
+  $("share").textContent = "Share screen";
+  $("share").classList.remove("on");
+  $("shstate").textContent = "Screen off";
+}
+
+$("share").onclick = async () => {
+  if (stream) return stopShare();
+  try {
+    stream = await navigator.mediaDevices.getDisplayMedia({
+      video: { frameRate: 1 },
+      audio: false,
+    });
+    $("vid").srcObject = stream;
+    stream.getVideoTracks()[0].addEventListener("ended", stopShare);
+    $("share").textContent = "Stop sharing";
+    $("share").classList.add("on");
+    $("shstate").textContent = "Screen live";
+    $("watchwrap").classList.remove("hidden");
+  } catch (e) {
+    $("shstate").textContent = "Screen share cancel ho gaya";
+    stream = null;
+  }
+};
+
+$("watch").onchange = (e) => {
+  if (watchTimer) clearInterval(watchTimer);
+  watchTimer = null;
+  if (e.target.checked && stream) {
+    watchTimer = setInterval(() => {
+      if (!busy) send("Screen par ab kya change hua? Short update do — structure, level, action.", true);
+    }, 45000);
+  }
+};
+
+/* ---------- chat ---------- */
 
 $("attach").onclick = () => $("file").click();
 $("file").onchange = (e) => {
@@ -94,44 +176,73 @@ $("file").onchange = (e) => {
   const r = new FileReader();
   r.onload = () => {
     chartImage = String(r.result);
-    $("attach").textContent = "Chart attached ✓";
-    $("clear").classList.remove("hidden");
+    $("attached").classList.remove("hidden");
   };
   r.readAsDataURL(f);
 };
 $("clear").onclick = () => {
   chartImage = null;
   $("file").value = "";
-  $("attach").textContent = "Attach chart";
-  $("clear").classList.add("hidden");
+  $("attached").classList.add("hidden");
 };
 
-$("run").onclick = async () => {
-  const btn = $("run");
-  const out = $("out");
-  btn.disabled = true;
-  btn.textContent = "Analysing…";
-  out.className = "out muted";
-  out.textContent = "Working on it…";
+const box = $("q");
+box.addEventListener("input", () => {
+  box.style.height = "auto";
+  box.style.height = Math.min(box.scrollHeight, 110) + "px";
+});
+box.addEventListener("keydown", (e) => {
+  if (e.key === "Enter" && !e.shiftKey) {
+    e.preventDefault();
+    send();
+  }
+});
+$("send").onclick = () => send();
+
+async function send(preset, silentUser) {
+  if (busy) return;
+  const text = (preset ?? box.value).trim();
+  if (!text && !chartImage && !stream) return;
+  busy = true;
+  $("send").disabled = true;
+  if (!preset) {
+    box.value = "";
+    box.style.height = "auto";
+  }
+
+  const shot = grabFrame();
+  if (!silentUser) addMsg("user", text, shot || chartImage || undefined);
+
+  const pend = addMsg("ai", "");
+  pend.classList.add("typing");
+  pend.textContent = "Soch raha hoon…";
+
   try {
     const d = await post({
-      action: "analyze",
+      action: "chat",
       timeframe,
-      mode,
-      question: $("q").value.trim() || undefined,
+      question: text,
+      history: history.slice(-8),
+      screenImage: shot || undefined,
       chartImage: chartImage || undefined,
     });
-    out.className = "out filled";
-    out.textContent = d.text.replace(/\*\*/g, "").replace(/^#+\s*/gm, "");
+    pend.remove();
+    addMsg("ai", d.text);
+    history.push({ role: "user", text }, { role: "assistant", text: d.text });
+    if (d.ticker) {
+      $("price").textContent = d.ticker.price.toFixed(2);
+    }
   } catch (e) {
-    out.className = "out error";
-    out.textContent = e.message;
+    pend.remove();
+    addMsg("ai err", e.message);
   } finally {
-    btn.disabled = false;
-    btn.textContent = "Run analysis";
+    busy = false;
+    $("send").disabled = false;
   }
-};
+}
 
 renderTabs();
+renderQuick();
+emptyState();
 loadSnapshot();
 setInterval(loadSnapshot, 20000);

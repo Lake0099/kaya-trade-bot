@@ -140,10 +140,12 @@ function GoldPanel() {
 
       <section className="border-b border-border bg-surface/60 px-4 py-4">
         <h2 className="text-[11px] font-semibold uppercase tracking-widest text-accent">
-          Chrome sidebar extension
+          Chrome sidebar extension — Gemini style
         </h2>
         <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-          Isi panel ko Chrome ke side panel me kholein — chart ke saath saath.
+          Chrome ke side panel me chat khulti hai. "Share screen" dabayein aur AI aap ka chart live
+          dekh kar ICT/SMC (structure, liquidity, OB/FVG, entry, stop, targets) ke hisab se jawab
+          deta hai — 25+ saal ke analyst ki tarah.
         </p>
         <button
           onClick={() => {

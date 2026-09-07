@@ -1,7 +1,11 @@
-const API =
+const ENDPOINTS =
   location.protocol === "chrome-extension:"
-    ? "https://project--e6504850-5ce1-48e5-b564-6e4bbb878c19.lovable.app/api/public/gold"
-    : "/api/public/gold";
+    ? [
+        "https://project--e6504850-5ce1-48e5-b564-6e4bbb878c19.lovable.app/api/public/gold",
+        "https://project--e6504850-5ce1-48e5-b564-6e4bbb878c19-dev.lovable.app/api/public/gold",
+      ]
+    : ["/api/public/gold"];
+let API = ENDPOINTS[0];
 
 
 const TIMEFRAMES = ["15m", "1h", "4h", "1d"];

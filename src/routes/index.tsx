@@ -6,17 +6,17 @@ import { Button } from "@/components/ui/button";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Gold Desk AI — ICT/SMC Gold Sidebar" },
+      { title: "Jenvu — ICT/SMC Gold Sidebar" },
       {
         name: "description",
         content:
           "Live gold sidebar with ICT/SMC AI analysis, screen sharing and trade plans. Preview the Chrome side panel and download the extension.",
       },
-      { property: "og:title", content: "Gold Desk AI — ICT/SMC Gold Sidebar" },
+      { property: "og:title", content: "Jenvu — ICT/SMC Gold Sidebar" },
       {
         property: "og:description",
         content:
-          "Preview the Gold Desk side panel live and download the Chrome extension.",
+          "Preview the Jenvu side panel live and download the Chrome extension.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -47,7 +47,7 @@ function Home() {
       <div className="mx-auto grid max-w-5xl items-start gap-10 lg:grid-cols-[1fr_400px] lg:gap-16">
         <section className="pt-3 lg:sticky lg:top-12">
           <p className="text-sm font-semibold text-primary">Chrome side panel</p>
-          <h1 className="mt-3 max-w-xl text-4xl font-semibold leading-tight sm:text-5xl">GoldAI Analyst</h1>
+          <h1 className="mt-3 max-w-xl text-4xl font-semibold leading-tight sm:text-5xl">Jenvu</h1>
           <p className="mt-5 max-w-xl text-base leading-7 text-muted-foreground">
             Live gold analysis with ICT/SMC structure, liquidity, order blocks and chart screen reading—right beside your browser.
           </p>
@@ -76,7 +76,7 @@ function Home() {
           <div className="overflow-hidden rounded-[24px] border border-border bg-card shadow-xl">
             <iframe
               src="/extension-preview/sidepanel.html"
-              title="Gold Desk sidebar preview"
+              title="Jenvu sidebar preview"
               className="block h-[740px] w-full bg-background"
             />
           </div>

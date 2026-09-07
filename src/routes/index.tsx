@@ -55,9 +55,14 @@ function Home() {
             Live gold analysis with ICT/SMC structure, liquidity, order blocks and chart screen reading—right beside your browser.
           </p>
 
-          <Button onClick={download} size="lg" className="mt-7 rounded-full px-6">
-            <Download /> Download extension
-          </Button>
+          <div className="mt-7 flex flex-wrap gap-3">
+            <Button onClick={() => download("/gold-desk-extension.zip", "gold-desk-extension.zip")} size="lg" className="rounded-full px-6">
+              <Download /> Download extension
+            </Button>
+            <Button onClick={() => download("/jenvu-project.zip", "jenvu-project.zip")} size="lg" variant="outline" className="rounded-full px-6">
+              <Download /> Download project ZIP
+            </Button>
+          </div>
 
           <div className="mt-9 border-t border-border pt-6">
             <div className="flex items-center gap-2 text-sm font-semibold">

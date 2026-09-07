@@ -95,14 +95,24 @@ function addMsg(cls, text, shot) {
 }
 
 async function post(body) {
-  const res = await fetch(API, {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify(body),
-  });
-  const json = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(json.error || `Request failed (${res.status})`);
-  return json;
+  let lastErr;
+  for (const url of [API, ...ENDPOINTS.filter((u) => u !== API)]) {
+    try {
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(body),
+        cache: "no-store",
+      });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(json.error || `Request failed (${res.status})`);
+      API = url;
+      return json;
+    } catch (e) {
+      lastErr = e;
+    }
+  }
+  throw lastErr || new Error("Network error");
 }
 
 async function loadSnapshot() {
